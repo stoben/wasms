@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>GOF</title>
+    <style>
+        body {
+            position: absolute;
+            display: flex;
+            background-color: black;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+        }
+        canvas {
+            object-fit: contain;
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated, crisp-edges;            
+        }
+    </style>
+    </head>
+        
+
+    <body> 
+        <canvas width="150" height="150"></canvas>
+        <script>
+            let width = 150, height = 150;
+            var impobj = {
+                math: { rand: () => Math.random() },
+                console: {
+                    log: ( x,y) => console.log(x,y)
+                }
+            }
+            
+
+            WebAssembly.instantiateStreaming(fetch('gof.wasm'), impobj)
+                .then(ws => {
+                    let instance = ws.instance;
+                    let exports = instance.exports;
+                    let cv = document.querySelector('canvas');
+                    const ctx = cv.getContext('2d');
+                    const imgData = ctx.createImageData(width, height);
+                    const canvasData = new Uint8Array(exports.mem.buffer, 0x0, width * height * 4);
+                    
+                    (function update() {
+                        requestAnimationFrame(update); //approx 60 fps //https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame                        
+                        exports.run();                        
+                        imgData.data.set(canvasData);
+                        ctx.putImageData(imgData, 0, 0);
+                    })();
+            });
+        </script>
+    </body>
+</html>
