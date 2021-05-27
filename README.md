@@ -1,1 +1,1 @@
-# Samle webassemblies
+# Sample webassemblies
