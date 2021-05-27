@@ -1,1 +1,1 @@
-# wasms
+# Samle webassemblies
